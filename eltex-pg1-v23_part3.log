@@ -1,0 +1,171 @@
+$ pwd
+/home/eltex-pg1-v23
+
+$ ls -l "$LOG"
+-rw-r--r-- 1 eltex-pg1-v23 eltex-pg1-v23 42 Oct 12 13:52 /home/eltex-pg1-v23/eltex-pg1-v23_part3.log
+
+$ cd
+
+$ pwd
+/home/eltex-pg1-v23
+
+$ ls -l "$LOG"
+-rw-r--r-- 1 eltex-pg1-v23 eltex-pg1-v23 192 Oct 12 13:53 /home/eltex-pg1-v23/eltex-pg1-v23_part3.log
+
+$ rm -rf D1
+
+$ mkdir -p D1/D2/D3
+
+$ find D1 -maxdepth 3 -type d -print
+D1
+D1/D2
+D1/D2/D3
+
+$ touch D1/D2/file.txt
+
+$ ls -l D1/D2/file.txt
+-rw-r--r-- 1 eltex-pg1-v23 eltex-pg1-v23 0 Oct 12 14:00 D1/D2/file.txt
+
+$ echo "Hello from file.txt" >> D1/D2/file.txt
+
+$ cat D1/D2/file.txt
+Hello from file.txt
+
+$ ln D1/D2/file.txt D1/D2/D3/hard_link
+
+$ ln -s ../file.txt D1/D2/D3/sym_link
+
+$ ls -li D1/D2/file.txt D1/D2/D3/hard_link D1/D2/D3/sym_link
+82 -rw-r--r-- 2 eltex-pg1-v23 eltex-pg1-v23 20 Oct 12 14:03 D1/D2/D3/hard_link
+83 lrwxrwxrwx 1 eltex-pg1-v23 eltex-pg1-v23 11 Oct 12 14:06 D1/D2/D3/sym_link -> ../file.txt
+82 -rw-r--r-- 2 eltex-pg1-v23 eltex-pg1-v23 20 Oct 12 14:03 D1/D2/file.txt
+
+$ readlink D1/D2/D3/sym_link
+../file.txt
+
+$ mv D1/D2/file.txt D1/file.txt
+
+$ ls -l D1/file.txt
+-rw-r--r-- 2 eltex-pg1-v23 eltex-pg1-v23 20 Oct 12 14:03 D1/file.txt
+
+$ ls -l D1/D2 2>/dev/null
+total 4
+drwxr-xr-x 2 eltex-pg1-v23 eltex-pg1-v23 4096 Oct 12 14:06 D3
+
+$ cat D1/D2/D3/hard_link
+Hello from file.txt
+
+$ cat D1/D2/D3/sym_link
+cat: D1/D2/D3/sym_link: No such file or directory
+
+$ ls -l D1/D2/D3/sym_link
+lrwxrwxrwx 1 eltex-pg1-v23 eltex-pg1-v23 11 Oct 12 14:06 D1/D2/D3/sym_link -> ../file.txt
+
+ANSWER(8): После перемещения file.txt жесткая ссылка hard_link продолжает работать, потому что указывает на тот же inode (файл не переименовался для inode). Символьная ссылка sym_link хранит путь ../file.txt на старое местоположение: после mv файл переехал в D1, поэтому путь стал неверным и ссылка сломалась.
+
+$ rm -rf D1/D2
+
+$ ls -l D1
+total 4
+-rw-r--r-- 1 eltex-pg1-v23 eltex-pg1-v23 20 Oct 12 14:03 file.txt
+
+$ BIGLOG=/home/eltex-pg1-v23/eltex-pg1-v23_part3_gt20M.log
+
+$ find / -type f -size +20M 2>/dev/null | sort -u > "$BIGLOG"
+
+$ wc -l "$BIGLOG"
+18 /home/eltex-pg1-v23/eltex-pg1-v23_part3_gt20M.log
+
+$ head -n 20 "$BIGLOG"
+/boot/initrd.img-6.1.0-44-amd64
+/boot/initrd.img-6.1.0-50-amd64
+/boot/initrd.img-6.1.0-53-amd64
+/proc/kcore
+/usr/bin/x86_64-linux-gnu-lto-dump-12
+/usr/lib/gcc/x86_64-linux-gnu/12/cc1
+/usr/lib/gcc/x86_64-linux-gnu/12/lto1
+/usr/lib/x86_64-linux-gnu/libicudata.so.72.1
+/var/cache/apt/pkgcache.bin
+/var/cache/apt/srcpkgcache.bin
+/var/lib/apt/lists/deb.debian.org_debian_dists_bookworm_main_binary-amd64_Packages
+/var/lib/apt/lists/deb.debian.org_debian_dists_bookworm_main_i18n_Translation-en
+/var/lib/apt/lists/deb.debian.org_debian_dists_bookworm_main_source_Sources
+/var/log/journal/8247b53b6ae84ae0ad9bb1c96113fd29/system@00065b6e0461a953-e594878e03ffcfa9.journal~
+/var/log/journal/8247b53b6ae84ae0ad9bb1c96113fd29/system@00065be42e22b64e-29e46ef12bfd5644.journal~
+/var/log/journal/8247b53b6ae84ae0ad9bb1c96113fd29/system@00065c4bf168df91-94a074e01b8fde49.journal~
+/var/log/journal/8247b53b6ae84ae0ad9bb1c96113fd29/system@4f44ef78d53d4cd0a5555898b8d0015b-000000000016aef5-0006585775bcfe03.journal
+/var/log/journal/8247b53b6ae84ae0ad9bb1c96113fd29/system@4f44ef78d53d4cd0a5555898b8d0015b-0000000000179b0c-000659e0105337c7.journal
+
+$ head -n 10 "$BIGLOG" | xargs -r du -h 2>/dev/null
+33M	/boot/initrd.img-6.1.0-44-amd64
+33M	/boot/initrd.img-6.1.0-50-amd64
+33M	/boot/initrd.img-6.1.0-53-amd64
+0	/proc/kcore
+31M	/usr/bin/x86_64-linux-gnu-lto-dump-12
+32M	/usr/lib/gcc/x86_64-linux-gnu/12/cc1
+31M	/usr/lib/gcc/x86_64-linux-gnu/12/lto1
+30M	/usr/lib/x86_64-linux-gnu/libicudata.so.72.1
+39M	/var/cache/apt/pkgcache.bin
+39M	/var/cache/apt/srcpkgcache.bin
+
+$ find ~ -type f -mtime -l -print
+find: invalid argument `-l' to `-mtime'
+
+$ command -v find
+/usr/bin/find
+
+$ which find
+/usr/bin/find
+
+$ find / \( -path /proc -o -path /sys -o -path /dev -o -path /run \) -prune -o -type f -size +20M -print 2>/dev/null | sort -u > "$BIGLOG"
+
+$ wc -l "$BIGLOG"
+17 /home/eltex-pg1-v23/eltex-pg1-v23_part3_gt20M.log
+
+$ head -n 20 "$BIGLOG"
+/boot/initrd.img-6.1.0-44-amd64
+/boot/initrd.img-6.1.0-50-amd64
+/boot/initrd.img-6.1.0-53-amd64
+/usr/bin/x86_64-linux-gnu-lto-dump-12
+/usr/lib/gcc/x86_64-linux-gnu/12/cc1
+/usr/lib/gcc/x86_64-linux-gnu/12/lto1
+/usr/lib/x86_64-linux-gnu/libicudata.so.72.1
+/var/cache/apt/pkgcache.bin
+/var/cache/apt/srcpkgcache.bin
+/var/lib/apt/lists/deb.debian.org_debian_dists_bookworm_main_binary-amd64_Packages
+/var/lib/apt/lists/deb.debian.org_debian_dists_bookworm_main_i18n_Translation-en
+/var/lib/apt/lists/deb.debian.org_debian_dists_bookworm_main_source_Sources
+/var/log/journal/8247b53b6ae84ae0ad9bb1c96113fd29/system@00065b6e0461a953-e594878e03ffcfa9.journal~
+/var/log/journal/8247b53b6ae84ae0ad9bb1c96113fd29/system@00065be42e22b64e-29e46ef12bfd5644.journal~
+/var/log/journal/8247b53b6ae84ae0ad9bb1c96113fd29/system@00065c4bf168df91-94a074e01b8fde49.journal~
+/var/log/journal/8247b53b6ae84ae0ad9bb1c96113fd29/system@4f44ef78d53d4cd0a5555898b8d0015b-000000000016aef5-0006585775bcfe03.journal
+/var/log/journal/8247b53b6ae84ae0ad9bb1c96113fd29/system@4f44ef78d53d4cd0a5555898b8d0015b-0000000000179b0c-000659e0105337c7.journal
+
+$ head -n 10 "$BIGLOG" | xargs -r du -h 2>/dev/null
+33M	/boot/initrd.img-6.1.0-44-amd64
+33M	/boot/initrd.img-6.1.0-50-amd64
+33M	/boot/initrd.img-6.1.0-53-amd64
+31M	/usr/bin/x86_64-linux-gnu-lto-dump-12
+32M	/usr/lib/gcc/x86_64-linux-gnu/12/cc1
+31M	/usr/lib/gcc/x86_64-linux-gnu/12/lto1
+30M	/usr/lib/x86_64-linux-gnu/libicudata.so.72.1
+39M	/var/cache/apt/pkgcache.bin
+39M	/var/cache/apt/srcpkgcache.bin
+48M	/var/lib/apt/lists/deb.debian.org_debian_dists_bookworm_main_binary-amd64_Packages
+
+$ file "$(command -v find)"
+/usr/bin/find: ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=5545a6c7162d325fbe5ffabcbfe4e5521b66ce70, for GNU/Linux 3.2.0, stripped
+
+$ ls -l /boot/initrd.img* 2>/dev?null
+-bash: /dev?null: Permission denied
+
+$ file /boot/initrd.img* 2>/dev/null
+/boot/initrd.img-6.1.0-44-amd64: ASCII cpio archive (SVR4 with no CRC)
+/boot/initrd.img-6.1.0-50-amd64: ASCII cpio archive (SVR4 with no CRC)
+/boot/initrd.img-6.1.0-53-amd64: ASCII cpio archive (SVR4 with no CRC)
+
+$ ls -l /boot/initrd.img* 2>/dev/null
+-rw-r--r-- 1 root root 34206128 Mar 26  2026 /boot/initrd.img-6.1.0-44-amd64
+-rw-r--r-- 1 root root 34207930 Jul  6 03:14 /boot/initrd.img-6.1.0-50-amd64
+-rw-r--r-- 1 root root 34215974 Oct  7 15:44 /boot/initrd.img-6.1.0-53-amd64
+
